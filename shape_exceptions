@@ -1,0 +1,180 @@
+from math import sqrt
+
+class Point:
+    def __init__(self, x, y):
+        if not (isinstance(x, (int, float)) and isinstance(y, (int, float))):
+            raise ValueError("Coordinates must be numeric.")
+        self.x = x
+        self.y = y
+
+    def compute_distance(self, point):
+        # Ensure the input is a Point instance
+        if not isinstance(point, Point):
+            raise TypeError("Argument must be a Point instance.")
+        return sqrt((point.x - self.x)**2 + (point.y - self.y)**2)
+
+
+class Line:
+    def __init__(self, start: Point, end: Point):
+        # Ensure start and end are instances of Point
+        if not (isinstance(start, Point) and isinstance(end, Point)):
+            raise TypeError("Start and end points must be of type 'Point'.")
+        self.start = start
+        self.end = end
+        self.length = start.compute_distance(end)
+
+
+class Shape:
+    def __init__(self, lines, points):
+        # Ensure lines and points are lists and have correct types
+        if not isinstance(lines, list) or not all(isinstance(line, Line) for line in lines):
+            raise TypeError("Lines must be a list of 'Line' instances.")
+        if not isinstance(points, list) or not all(isinstance(point, Point) for point in points):
+            raise TypeError("Points must be a list of 'Point' instances.")
+
+        self.lines = lines
+        self.points = points
+        self.is_regular = self.compute_regular()
+
+    def compute_regular(self):
+        # Check if all sides are equal for regularity
+        for i in range(len(self.lines) - 1):
+            if self.lines[i].length != self.lines[i + 1].length:
+                return False
+        return True
+
+    def vertices(self):
+        return len(self.points)
+
+    def edges(self):
+        return len(self.lines)
+
+    def inner_angles(self):
+        raise NotImplementedError("Subclass must implement this method")
+
+    def compute_area(self):
+        raise NotImplementedError("Subclass must implement this method")
+
+    def compute_perimeter(self):
+        raise NotImplementedError("Subclass must implement this method")
+
+
+class Triangle(Shape):
+    def __init__(self, lines, points):
+        # A triangle must have exactly 3 lines and 3 points
+        if len(lines) != 3 or len(points) != 3:
+            raise ValueError("A triangle must have exactly 3 lines and 3 points.")
+        super().__init__(lines, points)
+        self.isTriangle = self.compute_triangle()
+
+    def compute_triangle(self):
+        # Check if the sides form a valid triangle using the triangle inequality theorem
+        if (self.lines[0].length + self.lines[1].length > self.lines[2].length and
+            self.lines[0].length + self.lines[2].length > self.lines[1].length and
+            self.lines[1].length + self.lines[2].length > self.lines[0].length):
+            return True
+        return False
+
+    def inner_angles(self):
+        return 180
+
+    def compute_area(self):
+        # Heron's formula for triangle area
+        return 0.5 * abs((self.points[0].x * (self.points[1].y - self.points[2].y) +
+                          self.points[1].x * (self.points[2].y - self.points[0].y) +
+                          self.points[2].x * (self.points[0].y - self.points[1].y)))
+
+    def compute_perimeter(self):
+        return self.lines[0].length + self.lines[1].length + self.lines[2].length
+
+
+class Equilateral(Triangle):
+    def __init__(self, lines, points):
+        super().__init__(lines, points)
+
+    def inner_angles(self):
+        return 60
+
+    def compute_area(self):
+        return (sqrt(3) / 4) * self.lines[0].length**2
+
+    def compute_perimeter(self):
+        return 3 * self.lines[0].length
+
+
+class Isosceles(Triangle):
+    def __init__(self, lines, points):
+        super().__init__(lines, points)
+
+    def inner_angles(self):
+        return 90
+
+    def compute_area(self):
+        # Exception for when math results in an invalid square root (e.g., negative number)
+        try:
+            return 0.5 * self.lines[0].length * sqrt(self.lines[1].length**2 - (self.lines[0].length / 2)**2)
+        except ValueError:
+            raise ValueError("Invalid side lengths for an isosceles triangle.")
+
+    def compute_perimeter(self):
+        return self.lines[0].length + self.lines[1].length * 2
+
+
+class Scalene(Triangle):
+    def __init__(self, lines, points):
+        super().__init__(lines, points)
+
+    def inner_angles(self):
+        return 90
+
+    def compute_area(self):
+        # Heron's formula for the area of a scalene triangle
+        s = self.compute_perimeter() / 2
+        return sqrt(s * (s - self.lines[0].length) * (s - self.lines[1].length) * (s - self.lines[2].length))
+
+    def compute_perimeter(self):
+        return self.lines[0].length + self.lines[1].length + self.lines[2].length
+
+
+class TriRectangle(Triangle):
+    def __init__(self, lines, points):
+        super().__init__(lines, points)
+
+    def inner_angles(self):
+        return 90
+
+    def compute_area(self):
+        return 0.5 * self.lines[0].length * self.lines[1].length
+
+    def compute_perimeter(self):
+        return self.lines[0].length + self.lines[1].length + self.lines[2].length
+
+
+class Rectangle(Shape):
+    def __init__(self, lines, points):
+        if len(lines) != 4 or len(points) != 4:
+            raise ValueError("A rectangle must have exactly 4 lines and 4 points.")
+        super().__init__(lines, points)
+
+    def inner_angles(self):
+        return 90
+
+    def compute_area(self):
+        return self.lines[0].length * self.lines[1].length
+
+    def compute_perimeter(self):
+        return 2 * (self.lines[0].length + self.lines[1].length)
+
+
+class Square(Rectangle):
+    def __init__(self, lines, points):
+        super().__init__(lines, points)
+
+    def inner_angles(self):
+        return 90
+
+    def compute_area(self):
+        return self.lines[0].length**2
+
+    def compute_perimeter(self):
+        return 4 * self.lines[0].length
