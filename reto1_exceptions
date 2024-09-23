@@ -1,0 +1,116 @@
+# Función operaciones básicas (suma, resta, multiplicación, división)
+  # Recibe dos números y un operador. Se maneja con excepciones para errores comunes como división por cero o un operador no válido.
+  def operaciones_basicas(a, b, operacion):
+      try:
+          if operacion == "+":
+              return a + b
+          elif operacion == "-":
+              return a - b
+          elif operacion == "x":
+              return a * b
+          elif operacion == "/":
+              if b == 0:
+                  raise ZeroDivisionError("No se puede dividir por cero.")
+              return a / b
+          else:
+              raise ValueError("Operación no válida. Usa '+', '-', 'x' o '/'.")
+      except (TypeError, ValueError) as e:
+          return f"Error: {e}"
+  
+  # Probando la función operaciones_basicas
+  print(operaciones_basicas(2, 3, "+"))
+  print(operaciones_basicas(2, 3, "-"))
+  print(operaciones_basicas(2, 3, "x"))
+  print(operaciones_basicas(2, 0, "/"))
+  print(operaciones_basicas(2, 3, "="))
+  
+  
+  # Función palíndromo
+  # Se asegura de manejar strings y lanza una excepción si el valor no es una cadena.
+  def palindromo(palabra):
+      try:
+          if not isinstance(palabra, str):
+              raise TypeError("El valor debe ser una cadena.")
+          palabra = palabra.lower().replace(" ", "")
+          for i in range(len(palabra)):
+              if palabra[i] != palabra[-i-1]:
+                  return False
+          return True
+      except Exception as e:
+          return f"Error: {e}"
+  
+  # Probando la función palíndromo
+  print(palindromo("Anita lava la tina"))
+  print(palindromo(123))  # Error esperado
+  
+  
+  # Función que retorna una lista con los números primos de una lista de números
+  # Maneja excepciones para valores no enteros o fuera de rango.
+  from math import sqrt
+  def primos(numeros):
+      try:
+          primos = []
+          for num in numeros:
+              if not isinstance(num, int) or num < 1:
+                  raise ValueError(f"{num} no es un número entero válido o es menor que 1.")
+              raiz = sqrt(num)
+              entero_raiz = int(raiz)
+              esPrimo = True
+              for i in range(2, entero_raiz + 1):
+                  if num % i == 0:
+                      esPrimo = False
+              if num == 1:
+                  esPrimo = False
+              if esPrimo:
+                  primos.append(num)
+          return primos
+      except Exception as e:
+          return f"Error: {e}"
+  
+  # Probando la función primos
+  print(primos([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]))
+  print(primos([1, 2, "a", 3, -5]))  # Error esperado
+  
+  
+  # Función mayor suma de dos elementos consecutivos
+  # Se asegura que la lista sea válida y maneja listas vacías o con un solo elemento.
+  def mayor_suma(numeros):
+      try:
+          if not isinstance(numeros, list) or len(numeros) < 2:
+              raise ValueError("Se necesita una lista con al menos dos elementos.")
+          mayor = numeros[0] + numeros[1]
+          for i in range(len(numeros) - 1):
+              suma = numeros[i] + numeros[i + 1]
+              if suma > mayor:
+                  mayor = suma
+          return mayor
+      except Exception as e:
+          return f"Error: {e}"
+  
+  # Probando la función mayor_suma
+  print(mayor_suma([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 20, 17, 18, 11]))
+  print(mayor_suma([10]))  # Error esperado
+  
+  
+  # Función que determina si palabras en una lista tienen los mismos caracteres (anagramas)
+  # Se asegura de manejar listas y cadenas, y lanza excepción si los valores no son cadenas.
+  def mismo_caracteres(lista):
+      try:
+          if not isinstance(lista, list):
+              raise TypeError("Se esperaba una lista.")
+          for palabra in lista:
+              if not isinstance(palabra, str):
+                  raise ValueError(f"'{palabra}' no es una cadena.")
+          iguales = []
+          for palabra in lista:
+              for palabra2 in lista:
+                  if palabra != palabra2:
+                      if sorted(palabra) == sorted(palabra2):
+                          iguales.append(palabra)
+          return iguales
+      except Exception as e:
+          return f"Error: {e}"
+  
+  # Probando la función mismo_caracteres
+  print(mismo_caracteres(["roma", "amor", "omar", "ramo", "hola"]))
+  print(mismo_caracteres([1, 2, "hola"]))  # Error esperado
